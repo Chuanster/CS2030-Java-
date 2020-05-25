@@ -8,7 +8,7 @@ class Roster extends KeyableMap<String,String,Student> {
         try {
             return this.get(name).get(modName).get(as).getGrade();
         } catch (NullPointerException ex) {
-            throw new NoSuchRecordException(String.format("No such record: %s %s %s", name, modName, as);
+            throw new NoSuchRecordException(String.format("No such record: %s %s %s", name, modName, as));
         }
     }
 
