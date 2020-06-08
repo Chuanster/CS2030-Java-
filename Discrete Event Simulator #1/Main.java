@@ -5,8 +5,11 @@ class Main {
     public static void main(String[] args) {
         Main.simulate(Main.getCustomers());
     }
-
-    static PriorityQueue<Customer> getCustomers() { // to input arrival times for the customer
+    
+    /*
+    ** Get the arrival time from the input
+    */
+    static PriorityQueue<Customer> getCustomers() {
         Scanner sc = new Scanner(System.in);
         PriorityQueue<Customer> pq = new PriorityQueue<>(new CustomerComparator());
         while (sc.hasNextDouble()) {
@@ -25,7 +28,7 @@ class Main {
     ** the system knows what to do next
     */
     static void simulate(PriorityQueue<Customer> pq) {
-        Server server = Server.of(); 
+        Server server = new Server(); 
         while (!pq.isEmpty()) {
             Customer customer = pq.remove();
             Customer.State state = customer.getState();
@@ -34,23 +37,23 @@ class Main {
             
             switch (state) {
                 case ARRIVES:
-                    if (!server.isBusy()) {
+                    if (server.canServe()) {
                         customer = customer.served();
-                    } else if (server.needToWait()) {
+                    } else if (server.canQueue()) {
                         customer = customer.waits();
-                        server.addToQueue(customer);
+                        server.setWaitingCustomer(customer);
                     } else {
                         customer = customer.leaves();
                     }
                     pq.add(customer);
                     break;
                 case SERVED:
-                    server = server.serve(customer);
+                    server.serve(customer);
                     pq.add(customer.done());
                     break;
                 case DONE:
-                    if (server.isQueueEmpty()) {
-                        server.done();
+                    if (server.queueIsEmpty()) {
+                        server.setCustomer(null);
                     } else {
                         pq.add(server.proceed(customer.getTime()));
                     }

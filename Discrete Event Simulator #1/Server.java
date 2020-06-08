@@ -2,60 +2,61 @@ import java.util.List;
 import java.util.ArrayList;
 
 class Server {
-    private final int iD;
-    private final double busyTill;
-    private Customer[] serving = new Customer[1];
-    private List<Customer> queue = new ArrayList<>();
+    private double busyTill;
+    private Customer customer;
+    private Customer customerWaiting;
 
-    private Server(int iD, double time) {
-        this.iD = iD;
-        this.busyTill = time;
-    }
-
-    public static Server of() {
-        return new Server(1, 0);
-    }
-
-    public double getTime() {                     // return the time where server is going to be free
+    protected double getTime() {
         return this.busyTill;
     }
 
-    public boolean isQueueEmpty() {               // checking if the queue for the server is empty
-        return this.queue.isEmpty();
+    protected Customer getCustomer() {
+        return this.customer;
     }
 
-    public boolean isBusy() {                     // checking whether this server if serving a customer(return true if it is)
-        return this.serving[0] != null;
-    }
-
-    public boolean needToWait() {                 // if the server is busy but the customer still can queue for it(return true)
-        return this.isBusy() && this.isQueueEmpty();
-    }
-   
-    public Customer proceed(double currentTime) { // moving on to the next customer(provided there is someone waiting)
-        this.serving[0] = this.queue.get(0).setTime(currentTime).served();
-        this.queue.clear();
-        return this.serving[0];
-    } 
-
-    public void addToQueue(Customer a) {          // let the customer to join the queue when the server is busy
-        if (this.isQueueEmpty() && this.isBusy()) {
-            this.queue.add(a);
-        }
+    protected Customer getWaitingCustomer() {
+        return this.customerWaiting;
     }
     
-    public void done() {                          // removing the customer from "serving"
-        this.serving[0] = null;
+    protected void setTime(double time) {
+        this.busyTill = time;
+    }
+    
+    protected void setCustomer(Customer c) {
+        this.customer = c;
     }
 
-    public Server serve(Customer a) {             // server will attend to this customer
-        Server s = new Server(this.iD, a.getTime() + Customer.SERVICE_TIME);
-        s.serving[0] = a;
-        return s;
+    protected void setWaitingCustomer(Customer c) {
+        this.customerWaiting = c;
+    }
+
+    protected boolean canServe() {
+        return this.customer == null;
+    }
+
+    protected boolean canQueue() {
+        return !this.canServe() && this.customerWaiting == null;
+    }
+
+    protected boolean queueIsEmpty() {
+        return this.canQueue();
+    }
+
+    protected void serve(Customer customer) {
+        if (this.canServe()) {
+            this.busyTill = customer.getTime() + Customer.SERVICE_TIME;
+            this.setCustomer(customer);
+        }
+    }
+
+    protected Customer proceed(double time) {
+        this.setCustomer(this.getWaitingCustomer().setTime(time).served());
+        this.setWaitingCustomer(null);
+        return this.getCustomer();
     }
 
     @Override
     public String toString() {
-        return " Server " + this.iD;
+        return "Stats: " + this.busyTill + " " + this.customer + " " + this.customerWaiting + "\n";
     }
 }
