@@ -14,7 +14,11 @@ class Servers {
         }
         return Servers.servers;
     }
-
+    
+    /*
+    ** find if there is any server available to serve a customer
+    ** else a special server will be returned(a server that does nothing)
+    */
     static Server anyCanServe() {
         for (Server s: Servers.servers) {
             if (s.canServe()) {
@@ -24,6 +28,10 @@ class Servers {
         return null;
     }
     
+    /*
+    ** find if there is any server that a customer can queue 
+    ** else a special server will be returned(a server that does nothing)
+    */
     static Server anyCanQueue() {
         for (Server s: Servers.servers) {
             if (s.canQueue()) {
@@ -33,6 +41,9 @@ class Servers {
         return null;
     }
     
+    /*
+    ** find a availale server or find the server thats be assigned to the customer
+    */
     static Server findServer(Event event) {
         Customer customer = event.getCustomer();
         Customer.State state = customer.getState();
